@@ -19,44 +19,44 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
-category: info
+title: "Signed Object Template with Multi Signers for the Resource Public Key Infrastructure (RPKI)"
+abbrev: "Multi Signers for RPKI Signed Objects"
+category: std
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-guo-sidrops-multi-signers-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: WG Working Group
+# area: AREA
+# workgroup: WG Working Group
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
-venue:
-  group: WG
-  type: Working Group
-  mail: WG@example.com
-  arch: https://example.com/WG
-  github: USER/REPO
-  latest: https://example.com/LATEST
+ - rpki
+# venue:
+#  group: SIDROPS
+#  type: Working Group
+#  mail: WG@example.com
+#  arch: https://example.com/WG
+#  github: USER/REPO
+#  latest: https://example.com/LATEST
 
 author:
  -
-    fullname: Your Name Here
-    organization: Your Organization Here
-    email: your.email@example.com
+    fullname: Yangfei Guo
+    organization: ZGCLab
+    email: guoyangfei@zgclab.edu.cn
 
 normative:
+    RFC6480:
+    RFC6488:
 
 informative:
 
 
 --- abstract
 
-TODO Abstract
+The natural problem of RPKI is that it can only provide authorization for Internet Number Resources. However, it cannot provide authorization for relationships of Autonomous Systems (AS).
 
 
 --- middle
