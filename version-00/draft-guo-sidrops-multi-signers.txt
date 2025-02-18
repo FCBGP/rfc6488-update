@@ -1,0 +1,315 @@
+
+
+
+
+SIDR Operations                                                   Y. Guo
+Internet-Draft                                                    ZGCLab
+Intended status: Standards Track                        18 February 2025
+Expires: 22 August 2025
+
+
+ Signed Object Template with Multi Signers for the Resource Public Key
+                         Infrastructure (RPKI)
+                 draft-guo-sidrops-multi-signers-latest
+
+Abstract
+
+   The Resource Public Key Infrastructure (RPKI) system facilitates the
+   authorization of Internet Number Resources, which include a
+   collection of Internet Protocol (IP) addresses and Autonomous System
+   Numbers (ASNs).  However, it is important to note that RPKI does not
+   extend its authorization capabilities to the relationships between
+   Autonomous Systems (ASes).  This document endeavors to establish
+   these relationships by introducing an option to the template of the
+   RPKI-signed object.
+
+Discussion Venues
+
+   This note is to be removed before publishing as an RFC.
+
+   Discussion of this document takes place on the SIDR Operations
+   mailing list (sidrops@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/sidrops/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/FCBGP/rfc6488-update.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 22 August 2025.
+
+Copyright Notice
+
+   Copyright (c) 2025 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Requirements Language
+   2.  Signed Object Syntax
+     2.1.  signerInfos
+       2.1.1.  sid
+   3.  Multi-Signers Signing Procedure
+   4.  Signed Object Validation
+   5.  Definition of Specific Signed Objects
+   6.  Security Considerations
+   7.  IANA Considerations
+   8.  References
+     8.1.  Normative References
+     8.2.  Informative References
+   Acknowledgments
+   Author's Address
+
+1.  Introduction
+
+   The Border Gateway Protocol (BGP) is the mechanism that enables
+   routers to build routing tables across the Internet.  However, the
+   original BGP protocol is deficient in several security features, such
+   as the authorization of IP prefix announcements.  This lack of
+   security makes BGP susceptible to various attacks, including prefix
+   hijacking and route leaks [RFC7908].
+
+   The Resource Public Key Infrastructure (RPKI) system provides the
+   authorization of Internet Number Resources (INRs).  At its core, RPKI
+   is a hierarchical Public Key Infrastructure (PKI) that associates
+   INRs, such as Autonomous System Numbers (ASNs) and IP addresses, with
+   public keys through the use of certificates.  It is an opt-in service
+   that provides security for Internet routing.
+
+   The Route Origin Authorization (ROA) is one of the most important
+   RPKI-signed objects.  It enables a certificate holder to authorize a
+   specific ASN to announce designated IP prefixes.  The ROA is signed
+   using the private key associated with a certificate that encompasses
+   the relevant IP space.
+
+   However, the inherent limitation of RPKI is that it can only
+   establish the relationship between a single Autonomous System and
+   specific prefixes; it cannot define or assert the relationships
+   between two Autonomous Systems.  Although the Autonomous System
+   Provider Authorization (ASPA) has been proposed
+   [I-D.ietf-sidrops-aspa-profile] [I-D.ietf-sidrops-aspa-verification],
+   it remains challenging for a third-party AS to validate the
+   relationship between the issuer and its self-proclaimed providers.
+   Suppose a third-party AS cannot verify the actual relationship
+   between the issuer and its self-proclaimed providers.  In that case,
+   it may face deception and misjudgment when attempting to validate the
+   AS_PATH using ASPA or similar methodologies, such as Autonomous
+   System Relationship Authorization (ASRA).
+
+   This document proposes a modification involving multi-signers to the
+   Signed Object Template for the Resource Public Key Infrastructure
+   (RPKI) [RFC6488] to establish the relationships between Autonomous
+   Systems better.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+2.  Signed Object Syntax
+
+2.1.  signerInfos
+
+   In Section 2.1 of [RFC6488], it states, "Additionally, the
+   SignerInfos set MUST contain only a single SignerInfo object."  To
+   support multi-signers, this document proposes to relax this
+   restriction to:
+
+   "Additionally, the SignerInfos set MUST contain *at least* one
+   SignerInfo object.  The first SignerInfo represents the original
+   issuer, and the presence of any subsequent SignerInfos depends on the
+   eContentType and eContent in the encapContentInfo field."
+
+     SignedData ::= SEQUENCE {
+             version CMSVersion,
+             digestAlgorithms DigestAlgorithmIdentifiers,
+             encapContentInfo EncapsulatedContentInfo,
+             certificates [0] IMPLICIT CertificateSet OPTIONAL,
+             crls [1] IMPLICIT RevocationInfoChoices OPTIONAL,
+             signerInfos SignerInfos SIZE(1..MAX) }
+
+2.1.1.  sid
+
+   For extra signers, they are not REQUIRED to follow the rule that "the
+   sid MUST be the SubjectKeyIdentifier found in the EE certificate
+   included in the CMS certificates field".  However, they MUST ensure
+   that the sid in their signerInfo is associated with the AS Number or
+   AS Identifier present in the eContent field within the RPKI system.
+   Failure to comply with this requirement will result in an invalid
+   SignerInfo.
+
+3.  Multi-Signers Signing Procedure
+
+   The extra signers MUST first validate the signed object following the
+   procedure defined in Section 3 of [RFC6488] and the specific
+   procedure of each signed object.  If the signed objects are valid, it
+   can perform a multi-signer signing procedure.
+
+   The signing procedure for an extra signer is similar to that of the
+   issuer.  The extra signer fills in a SignerInfo field, adds it to the
+   signed object that requires its signature, and then resends it to the
+   RPKI repository, awaiting synchronization.
+
+4.  Signed Object Validation
+
+   This document also follows the principle of the signed object
+   validation procedure defined in Section 3 of [RFC6488].  It
+   introduces slight changes to these validation steps.
+
+   *  In step 1.c of Section 3 of [RFC6488], the SubjectKeyIdentifier
+      field of the certificates field needs to match only the sid field
+      of the first SignerInfo object.
+
+   *  In step 2 of Section 3 of [RFC6488], the public key of the EE
+      certificate (contained within the CMS signed-data object) can be
+      used to successfully verify the signature on the signed object of
+      the first SignerInfo object.  To verify the signatures of extra
+      SignerInfo objects, it is necessary to query the CA certificates
+      to obtain the appropriate public keys.
+
+   In this document, the Valid state resulting from the validation of
+   the signed object is separated into three parts:
+
+   *  *Valid*: This conforms to the original Valid state description.
+      In this case, the signerInfos field contains only one SignerInfo
+      object, indicating that this signed object is the raw signed
+      object and has not been signed by other signers.  This represents
+      the common Valid state.
+
+   *  *PartialValid*: This indicates that only the first SignerInfo
+      object is valid while the other SignerInfo objects are invalid.
+      It may represent an intermediate state of the signed object, which
+      will transition to the TotallyValid State after being signed by
+      all the multiple signers.
+
+   *  *TotallyValid*: This means that all SignerInfo objects are valid.
+      It is the expected final valid state.
+
+   If the above validation procedure and steps defined in Section 3 of
+   [RFC6488] indicate that the signed object is Invalid, then the signed
+   object MUST be discarded and treated as though no signed object were
+   present.  If all of the conditions above are true, then the signed
+   object may be Valid.
+
+   When in use, the router can set different routing strategies to
+   correspond to various verification results.  This allows for tailored
+   handling based on the state of the validation, including
+   TotallyValid, PartialValid, Valid, Unknown, or Invalid results to
+   appropriate processes or workflows.
+
+5.  Definition of Specific Signed Objects
+
+   It is REQUIRED to specify whether this object supports multi-signers
+   or not in defining a new signed object.
+
+   Typically, Route Origin Authorizations (ROAs) [RFC9582] do not need
+   multi-signers, but Autonomous System Provider Authorization (ASPA)
+   should support multi-signers.
+
+6.  Security Considerations
+
+   TODO Security
+
+7.  IANA Considerations
+
+   This document has no IANA actions.
+
+8.  References
+
+8.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC6480]  Lepinski, M. and S. Kent, "An Infrastructure to Support
+              Secure Internet Routing", RFC 6480, DOI 10.17487/RFC6480,
+              February 2012, <https://www.rfc-editor.org/rfc/rfc6480>.
+
+   [RFC6488]  Lepinski, M., Chi, A., and S. Kent, "Signed Object
+              Template for the Resource Public Key Infrastructure
+              (RPKI)", RFC 6488, DOI 10.17487/RFC6488, February 2012,
+              <https://www.rfc-editor.org/rfc/rfc6488>.
+
+   [RFC6811]  Mohapatra, P., Scudder, J., Ward, D., Bush, R., and R.
+              Austein, "BGP Prefix Origin Validation", RFC 6811,
+              DOI 10.17487/RFC6811, January 2013,
+              <https://www.rfc-editor.org/rfc/rfc6811>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9582]  Snijders, J., Maddison, B., Lepinski, M., Kong, D., and S.
+              Kent, "A Profile for Route Origin Authorizations (ROAs)",
+              RFC 9582, DOI 10.17487/RFC9582, May 2024,
+              <https://www.rfc-editor.org/rfc/rfc9582>.
+
+8.2.  Informative References
+
+   [I-D.geng-sidrops-asra-profile]
+              Geng, N., Sriram, K., and M. Huang, "A Profile for
+              Autonomous System Relationship Authorization (ASRA)", Work
+              in Progress, Internet-Draft, draft-geng-sidrops-asra-
+              profile-00, 13 October 2024,
+              <https://datatracker.ietf.org/doc/html/draft-geng-sidrops-
+              asra-profile-00>.
+
+   [I-D.ietf-sidrops-aspa-profile]
+              Azimov, A., Uskov, E., Bush, R., Snijders, J., Housley,
+              R., and B. Maddison, "A Profile for Autonomous System
+              Provider Authorization", Work in Progress, Internet-Draft,
+              draft-ietf-sidrops-aspa-profile-19, 6 January 2025,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-sidrops-
+              aspa-profile-19>.
+
+   [I-D.ietf-sidrops-aspa-verification]
+              Azimov, A., Bogomazov, E., Bush, R., Patel, K., Snijders,
+              J., and K. Sriram, "BGP AS_PATH Verification Based on
+              Autonomous System Provider Authorization (ASPA) Objects",
+              Work in Progress, Internet-Draft, draft-ietf-sidrops-aspa-
+              verification-20, 4 January 2025,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-sidrops-
+              aspa-verification-20>.
+
+   [RFC7908]  Sriram, K., Montgomery, D., McPherson, D., Osterweil, E.,
+              and B. Dickson, "Problem Definition and Classification of
+              BGP Route Leaks", RFC 7908, DOI 10.17487/RFC7908, June
+              2016, <https://www.rfc-editor.org/rfc/rfc7908>.
+
+Acknowledgments
+
+   TODO acknowledge.
+
+Author's Address
+
+   Yangfei Guo
+   ZGCLab
+   Email: guoyangfei@zgclab.edu.cn
