@@ -84,7 +84,7 @@ For extra signers, they are not REQUIRED to follow the rule that "the sid MUST b
 
 # Multi-Signers Signing Procedure {#MultiSignersSigningProcedure}
 
-The extra signers MUST first validate the signed object following the procedure defined in {{Seciont 3 of RFC6488}} and the specific procedure of each signed object. If the signed objects are valid, it can perform a multi-signer signing procedure.
+The extra signers MUST first validate the signed object following the procedure defined in {{Section 3 of RFC6488}} and the specific procedure of each signed object. If the signed objects are valid, it can perform a multi-signer signing procedure.
 
 The signing procedure for an extra signer is similar to that of the issuer. The extra signer fills in a SignerInfo field, adds it to the signed object that requires its signature, and then resends it to the RPKI repository, awaiting synchronization.
 
