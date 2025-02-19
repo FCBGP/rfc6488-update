@@ -2,10 +2,10 @@
 
 This is the working area for the individual Internet-Draft, "Signed Object Template with Multi Signers for the Resource Public Key Infrastructure (RPKI)".
 
-* [Editor's Copy](https://FCBGP.github.io/rfc6488-update/#go.draft-guo-sidrops-signed-object-multi-signers.html)
-* [Datatracker Page](https://datatracker.ietf.org/doc/draft-guo-sidrops-signed-object-multi-signers)
-* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-guo-sidrops-signed-object-multi-signers)
-* [Compare Editor's Copy to Individual Draft](https://FCBGP.github.io/rfc6488-update/#go.draft-guo-sidrops-signed-object-multi-signers.diff)
+* [Editor's Copy](https://FCBGP.github.io/rfc6488-update/#go.draft-guo-sidrops-multi-signers.html)
+* [Datatracker Page](https://datatracker.ietf.org/doc/draft-guo-sidrops-multi-signers)
+* [Individual Draft](https://datatracker.ietf.org/doc/html/draft-guo-sidrops-multi-signers)
+* [Compare Editor's Copy to Individual Draft](https://FCBGP.github.io/rfc6488-update/#go.draft-guo-sidrops-multi-signers.diff)
 
 
 ## Contributing
