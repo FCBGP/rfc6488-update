@@ -17,7 +17,7 @@
 /versioned/
 Gemfile.lock
 archive.json
-draft-guo-sidrops-signed-object-multi-signers.xml
+draft-guo-sidrops-multi-signers.xml
 package-lock.json
 report.xml
 !requirements.txt
